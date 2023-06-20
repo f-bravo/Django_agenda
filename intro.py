@@ -135,4 +135,124 @@ def index(request):
 # Ta sem nenhuma URL - porque foi passado uma url vazia na url principal
 # e pegar a urls vazia novamente em contac.
 
+"""
+git add . 
+-> git commit -m 'Criando App contact, base_templates e base_static'
+-> git push origin master -u
+"""
+
+
+# -----------------------------------------------------------------
+# Criando e editando a senha de um super usuário Django
+# -----------------------------------------------------------------
+
+
+# Django trabalha com migrations
+# sempre que quiser replicar tudo que já foi feito, terá um passo a passo
+# para fazer e desfazer 
+# As migrações não foram aplicadas e as tabelas não foram criadas no db.sqlite3 
+
+# As migrações foram criadas. 
+# Nesse momento o único comando que precisa é:
+# -> python manage.py migrate
+"""
+Operations to perform:
+  Apply all migrations: admin, auth, contenttypes, sessions
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying auth.0001_initial... OK
+  Applying admin.0001_initial... OK
+"""
+# Ao criar o model, os arquivos de migration também vão ser mostrados
+
+# Após aplicar as migration suba o servidor.
+# vá na uls e coloque /admin para abrir a parte de administração
+
+# Criando o super user
+# o super user tem acesso a quase tudo na base de dados do Django incluindo
+# a parte administratica.
+# -> python manage.py createsuperuser
+# escolha usuário, e-mail e senha. Confirme a senha e pronto.
+# Superuser created successfully.
+
+# Caso esqueça a senha:
+# -> python manage.py changepassword USER_NAME
+
+# É recomendado que não altere o validor de senha padrão do Django
+# que já vem configurado. 
+
+
+# -------------------------------------------------------------------
+
+# 451 - Base de dados, tabelas e documentação:
+
+# por padrão o Django vem com SQLite. 
+# O SQLite não é base de dados para trablahr em produção com sites
+# Mas só no final quando for passar esse servidor para um real
+#   no project/settings DATABASES = {...}
+
+# depois de aplicar as migrates da para ver as tabelas do sqlite3
+
+
+# --------------------------------------------------------------------
+
+# 452 - Django Models - model
+
+# No app contact/models.py:
+
+# A class Model Será usada para criar, buscar, atualizar e deletar contatos
+# Esse model vai geratar uma nova migração - vamos migrar para criar a tabela
+# na base de dados
+# Todos os campos criados no model são obrigatórios.
+# Se quiser colocar campo opcional coloque no final - blank=True 
+"""
+--> charfield no django precisa passar o tamanho máximo
+--> created_date será usado o módulo para criar automático a data e hora da criação
+TIME_ZONE = 'America/Sao_Paulo' --> modificado no project/settings
+"""
+
+# sempre que fizer editar o models precisa executar o comando:
+# -> python manage.py makemigrations 
+"""
+Com isso o django vai criar uma migração da class Contact e quando for aplicar
+as migrações ele vai salvar tudo na base de dados criando as tabelas e os campos.
+"""
+# O arquivo foi criado em migrations
+# é muito raro editar uma migração no próprio arquivo.
+# geralmente vai editar as tabelas na base de dados criando novas migraçoes p fazer 
+# as edições.
+
+# faça a migração.
+# -> python manage.py migrate 
+# Operations to perform:
+#   Apply all migrations: admin, auth, contact, contenttypes, sessions
+# Running migrations:
+#   Applying contact.0001_initial... OK
+
+
+# -------------------------------------------------------------------
+
+# 453 - Registrando o model na área administrativa em admin.py e register
+
+# precisa rigistrar o model em contact/admin.py
+# O padrão será nome_do_modelAdmin()
+# Essa classe criada é como uma configuração na admin do django
+# precisa fazer a importação: from contact import models
+
+# feito isso na área de admin do django já mostra contacts
+# ao adicionar contact da p ver um formulário.
+# campos em negrito são os obrigatórios 
+
+#OBS: os blank trabalha no formula´rio do Django e não na base de dados
+
+# Criado o primeiro contato ele mostra como - Contact object (1)
+# para que não seja exibido assim crie uma função __str__ no model Contact
+
+
+
+
+
+
+
+
 
