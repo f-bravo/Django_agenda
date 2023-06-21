@@ -248,11 +248,17 @@ as migrações ele vai salvar tudo na base de dados criando as tabelas e os camp
 # Criado o primeiro contato ele mostra como - Contact object (1)
 # para que não seja exibido assim crie uma função __str__ no model Contact
 
+# Agora na página de contatos da para visualizar com nome e sobrenome
+
+# além de criar a função __str__ no models também pode trabalhar na área admin
+# colocando algumas configurações úteis 
 
 
+# --------------------------------------------------------------------
 
+# 454 - Customizando admin.ModelAdmin
 
+# Colocando um list_display
 
-
-
-
+# Não use o mesmo campo em list_editable e list_display_links.
+# Gera um erro pois não pode adicionar um link em um input.
