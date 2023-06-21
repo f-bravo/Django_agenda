@@ -262,3 +262,212 @@ as migrações ele vai salvar tudo na base de dados criando as tabelas e os camp
 
 # Não use o mesmo campo em list_editable e list_display_links.
 # Gera um erro pois não pode adicionar um link em um input.
+
+
+"""
+@admin.register(models.Contact)
+class ContactAdmin(admin.ModelAdmin):
+    list_display = 'id', 'first_name', 'last_name', 'phone', # campos visíveis
+    ordering = '-id',   # ordenação - é comum começar pelo último add       
+    # list_filter = 'created_date',    # cria um campo para pesquisar por data
+    search_fields = 'id', 'first_name', 'last_name'    # campo de busca
+    list_per_page = 10    # número de contatos por página
+    list_max_show_all = 200    # número máximo padrão a ser mostrado por página
+    list_editable = 'first_name', 'last_name',    # deixa editar na área admin
+    list_display_links = 'id', 'phone'    #  link q vai p/ página Modificar contact
+
+"""
+
+
+# ---------------------------------------------------------------------------------
+
+# 455 - CRUD no django shell interativo e modelContact
+
+
+# O model é craido apra trabalhar com dados - para n ter que digitar sql no django
+
+# django shell interativo - é igual ao terminal do Python
+# -> python manage.py shell
+"""
+from contact.models import Contact
+>>> Contact
+<class 'contact.models.Contact'>
+
+# No Shell do Django ele não consegue checar algumas coisas pois n tem o formulário 
+django. Exemplo: blank=True
+
+c = Contact(first_name='Gustavo')
+
+# O contato foi criado apenas na memória. Para salvar na base de dados digite:
+c.save() 
+
+# Acrescentando sobrenome ao c = 'Gustavo':
+c.last_name = 'Moreira'
+c.save()
+
+c.phone = '475960473'
+
+# para deletar: c.delete() 
+# (1, {'contact.Contact': 1})
+
+# Mesmo deletando fica na memória do Shell do Django.
+# Se der um c.save() ele salva novamente, Tenha cuidado
+
+# Dentro do Model do Django tem o object - que é o manage. Esse objetcs permite fazer
+muitas coisas.
+Pegando um Contato e editando com objects:
+c = Contact.objects.get(id='4')
+>>> c.first_name = 'Helena'
+>>> c.save()
+>>> c
+<Contact: Helena Moreira>
+
+>>> c = Contact.objects.all()
+>>> c
+<QuerySet [<Contact: João Oliveira>, <Contact: Luiz Machado>, <Contact: Helena Moreira>]>
+
+>>> for contato in c: contato.first_name
+... 
+'João'
+'Luiz'
+'Helena'
+>>>
+
+# O que mais vai ser mais usado é o filter - mas ainda não tem nenhum filtro que é
+a QuesrySet
+
+>>> c = Contact.objects.filter(id=4)>>> c
+<QuerySet [<Contact: Helena Moreira>]>
+
+>>> c = Contact.objects.all().order_by('-id')
+>>> c
+<QuerySet [<Contact: Helena Moreira>, <Contact: Luiz Machado>, <Contact: João Oliveira>]>
+
+# Usando o create - não precisa de save() pois ele salva direto na base de dados (não lazy)
+
+>>> c = Contact.objects.create(first_name='Edu', last_name='Vieira')
+>>> c
+<Contact: Edu Vieira>
+
+
+"""
+"""
+No Django as QuerySets a maioria delas serão (lazy), não vão na base de dados até que
+puxe o valor. Precisa fazer um print ou um for na consulta por exemplo.
+Isso permite fazer encadeamento de chamadas sem ficar indo na base de dados toda hora.
+Faz o encadeamento e quando solitar os valores ai sim vai na base de dados.
+"""
+
+
+# ----------------------------------------------------------------------------------
+
+
+# 456 - Criando ImageField e configurando MEDIA_URL e MEDIA_ROOT no settigns.py
+
+
+# category - será outro campo e outro model que terá uma chave estrangeira 
+"""
+Nesse APP não vai precisar ter uma categoria para criar um contato.
+Mas na maioria dos casos ao trabalhar com foreign key é comum primeiro ter que criar
+a categoria e só depois criar o contato pois precisa da cageria salva na base de dados
+para atrelar no campo da categoria do contato por exemplo.
+"""
+
+# category (foreign key) e show (boolean), picture (imagem)
+
+# show = models.BooleanField(default=True)
+# se n falar nada já vai cadastrar o contato mostrando.
+
+# picture (imagem)
+# a base de dados não vai ter o arquivo. Terá um link apontando para o arquivo.
+# isso é mais performático. Salvar imagens na base de dados não é recomendado
+
+# No contact/settings.py precisa registrar
+# não vem por padrão no Django
+# MEDIA_URL = 'media/'
+# são arquivos que serão enviados pelo usuário
+
+# precisa também colocar o media_root que coleta os arquivos enviados pelo usuário
+# MEDIA_ROOT = BASE_DIR / 'media'
+
+
+# pasta que coleta arquivos estáticos. pasta essa craida na raiz do site
+# Caminho configurado no contact/settings.py
+# STATIC_ROOT = BASE_DIR / 'static'  # collectstatic
+# Esse collect static vai pegar todos arquivos estáticos e mover tudo para dentro da
+# pasta static - e quando for configurar no servidor - diz onde ele vai buscar os
+# arquivos estáticos que será na pasta 'static'
+
+# Fazendo o collectstatic p n enviar p o github
+# -> python manage.py collectstatic
+# 126 static files copied to 'C:\Django_agenda\static'.                                
+
+# precisa colotar os estáticos para garantir que não está usando coisas de dentro
+# do projeto - mas já está usando os negócios de produção.
+
+# no gitignore acrescente a pasta static/ para nao ir p github
+
+# picture = models.ImageField(blank=True, upload_to='picture/%Y/%m')
+# blank=True: para não ter que forçar enviar uma imagem
+# upload_to='picture/%Y/%m' cria uma pasta (picture) dentro da pasta media e dentro
+# da pasta picture cria cria outra pasta do ano atual e dentro do ano cria do mês atual
+
+# Faça as migrações 
+# python manage.py makemigrations
+
+# deu um erro
+"""
+SystemCheckError: System check identified some issues:
+
+ERRORS:
+contact.Contact.picture: (fields.E210) Cannot 
+use ImageField because Pillow is not installed
+"""
+
+# deu esse erro pois foi buscado um campo imageField
+# Mas o Django depende do Pillow para trabalhar com essas imagens.
+# python -m pip install Pillow
+# com o pillow instalado agora as migrações serrão enviadas
+"""
+python manage.py makemigrations     
+Migrations for 'contact':
+  contact\migrations\0002_contact_picture_contact_show.py       
+    - Add field picture to contact
+    - Add field show to contact
+"""
+
+# outro erro:
+"""
+You have 1 unapplied migration(s). Your project may not work properly until you apply the migrations for app(s): contact.
+Run 'python manage.py migrate' to apply them.
+"""
+# Não foi aplicado o contact.show 
+# Não deu certo pois o comando: python manage.py makemigrations     
+# makemigrations - cria os arquivos de migração mas quem migra é o:
+# -> python manage.py migrate
+"""
+manage.py migrate        
+Operations to perform:
+  Apply all migrations: admin, auth, contact, contenttypes, 
+sessions
+Running migrations:
+  Applying contact.0002_contact_picture_contact_show... OK  
+"""
+# Basta atualizar que volta a funcionar.
+
+# agora os campos Show e Escolher um arquivo estão disponíveis.
+
+# Se tentar abrir o link do arquivo não vai funcionar.
+# O django tenta usar o MEDIA_URL = 'media' do settings.py
+# O django não configura isso.
+# Se em desenvolvimento deseja trabalhar com a MEDIA dessa maneira precisa configurar
+# a URLS do projeto para que consiga servir as imagens.
+# Em produção quem serve é o servidor.
+
+# Vá na urls.py do projeto
+# import:
+# from django.conf.urls.static import static
+# Agora precisa fazer uma importação específica para importar do SETTINGS:
+# from django.conf import settings
+# agora na importação do settings tem tudo que tem no settings do django
+# -> urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
