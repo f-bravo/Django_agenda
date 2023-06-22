@@ -552,3 +552,86 @@ class Category(models.Model):
     def __str__(self) -> str:
         return self.name
 """
+
+
+# -------------------------------------------------------------------------------
+
+
+# 459 - Criando o campo owner - usando o model User do Django
+
+# Colocando uma PK de owner no Contact:
+"""
+Para quando for criar os templates e as views, o usuário que criou o contato, tenha
+permisão de editar, apagar, etc. O contato é de quem criou por isso owner.
+O django já tem um sistema de usuários. Se estiver criando algo que nã oseja tão 
+complexo, pode usar o próprio seitema de autenticação Django.
+
+Se precisar colocar mais campos o ideial é que extenda o usuário com outro model.
+Por exemplo criaria outro model onde tem os dados do perfil do usuário, uma bio ou 
+uma foto ao invés de editar o próprio model existente
+"""
+# No shell do Django:
+# -> python manage.py shell
+# from django.contrib.auth.models import User
+
+# O user é modo padrão de usuários do Django - pode usar para criar, obter, etc.
+# Criando usuário - coloque numa variável.
+# o create_user() - precisa ser assim pois já faz a criptografia
+# -> user = User.objects.create_user(username='XXX', password='XXX')
+# com esse comando não precisa de user.save()
+
+# feito isso criou um user com username e senha que é suficiente para poder logar 
+# nessa área
+# O usuário criado não tem staff account marcado. Com isso o usuário não consegue
+# logar na área Django Administration.
+# Sendo assim ,pode usar esse usuári odo Django sem correr o risco de alguém logar 
+# na área adiminstrativa do Django.
+
+# No site - terá a opção para que as pessoas possam criar contas.
+# Esses usuários não terão staff account nem super users staff marcadas.
+# As pessoas vão conseguir logar na área que será criada e destinada a isso.
+# Ai começa a trabalhar com permissões - se determinado usuário pode ou não editar
+# determinado contado baseado se ele é ou não owner, se foi ele que criou ou não.
+
+# seguindo...
+# Criando em contact/models.py class Contact() o owner
+"""
+ owner = models.ForeignKey(
+        User, on_delete=models.SET_NULL, blank=True, null=True)
+"""
+# Modificou o models faça as migrações.
+# -> python manage.py makemigrations
+"""
+contact\migrations\0004_alter_category_options_contact_owner.py
+  - Change Meta options on category  <- feita antes 
+  - Add field owner to contact
+"""
+# -> python manage.py migrate
+
+# Agora ao criar um contato da para selecionar quem vai ser o owner
+
+# vamos usar uma lib externa - faker - para popular o banco com dados aleatórios
+# para desenvolver o frontend
+
+
+# --------------------------------------------------------------------------------
+
+
+# colocando no topo do arquivo para não ver mais os erros de tipagem e pep8
+# type: ignore
+# flake8: noqa
+
+
+# 460 - Gerando dados no Django com Faker
+
+# criando uma pasta na raiz com o arquivo create_contacts.py
+# 
+
+
+
+
+
+
+
+
+
