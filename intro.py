@@ -70,6 +70,7 @@ copie a chave https e dê o seguinte comando:
 -> git push origin master
 # ------------------------------------------------------------
 
+
 # OBS na próxima vez pode setar (-u) o nome para digitar apenas git push:
 -> git push origin master -u
 
@@ -471,3 +472,32 @@ Running migrations:
 # from django.conf import settings
 # agora na importação do settings tem tudo que tem no settings do django
 # -> urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+
+# -------------------------------------------------------------------
+
+
+# 457 - Criação do Model Caregory e ligação com Contact por FK
+
+
+# Poderá ser criada um contato sem categoria
+
+# Será criado uma class no contact/models.py
+"""
+class Category(models.Model):
+    name = models.CharField(max_length=50)
+
+Adicionando um campo na tabela Contact para fazer a PK
+# category = models.ForeignKey(Category, on_delete=models.SET_NULL, )
+
+on_delete SET_NULL - ao apagar a category o contato linkado nela ficará nulo.
+Com isso precisa deixar que no contato criado a categoria possa ser nula - blank=True
+e permitir que o valor seja nulo. null=True
+"""
+
+# Fazendo as migrações:
+# -> python manage.py makemigrations
+
+
+
+
