@@ -625,7 +625,47 @@ contact\migrations\0004_alter_category_options_contact_owner.py
 # 460 - Gerando dados no Django com Faker
 
 # criando uma pasta na raiz com o arquivo create_contacts.py
-# 
+# utils/create_contacts.py
+
+# O script está explicado
+# como não precisa do manage.py o comando será:
+#-> python utils/create_contacts.py
+
+
+# ------------------------------------------------------------------------------
+
+
+# 461 -Usando local_settings para sobrescrever variáveis de settings
+
+
+"""
+Muitas settings que vem por padrão no Django terão que ser mudada.
+Isso gera incompatibilidade se tiver usando algo como Git. Pois terá um arquivo de
+settings e terá dados diferentes quando for usar o computador local e no servidor.
+E isso pode gerar transtornos.
+Existem algumas táticas para pegar essas configurações do settings.py dinamicamente.
+Por exemplo, utilziar o .env - para Django .env
+A lógica é:
+Cada local que for utilziar o proejto seja local ou servidor, será criado um arquivo
+que não será monitorado pelo git. Geralemten de nome local_settings.py.
+
+No settings lá no final. Não pode ter nada depois pois pode dar problema.
+colque um try para tentar improtar o módulo
+try: 
+    from project.local_settings import *
+except ImportError:
+Agora qualquer coisa que for colocada nesse arquivo, que não vai está no github,
+estará disponível apenas no local que estiver nesse caso só no seu computador.
+Por exemplo se sobrescrever qualquer configuração do settings.py já vai funcionar.
+
+# É uma tática para ter settings baseada no local que estiver seja no servidor ou local
+
+"""
+# Colocando o caminho do local_settings no gitignore para n ser trackeado
+# lá no servidor esse arquivo tem que ser criado manualmente
+
+
+
 
 
 

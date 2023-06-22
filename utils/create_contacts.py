@@ -7,6 +7,8 @@ from random import choice
 import django
 from django.conf import settings
 
+# não é um scrip para ter no servidor de produção - gera muito transtorno
+
 # Pegando o caminho até a raiz do projeto - o import será p trás
 # terá que importar de settings, project.
 # Está pegando a raiz para "enganar" o Python dizendo que a raiz tbm faz parte do pjt
@@ -32,7 +34,7 @@ if __name__ == '__main__':
 # As importações ficaram aqui para que n seja reordenada e n cause erros
     from contact.models import Category, Contact
 
-# deleta tudo que foi criado anteriormente para testar 
+# deleta tudo que foi criado anteriormente para testar - cuidado
     Contact.objects.all().delete()
     Category.objects.all().delete()
 
