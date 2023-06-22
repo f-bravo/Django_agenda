@@ -486,6 +486,9 @@ Running migrations:
 """
 class Category(models.Model):
     name = models.CharField(max_length=50)
+    
+    def __str__(self) -> str:
+        return self.name
 
 Adicionando um campo na tabela Contact para fazer a PK
 # category = models.ForeignKey(Category, on_delete=models.SET_NULL, )
@@ -497,7 +500,55 @@ e permitir que o valor seja nulo. null=True
 
 # Fazendo as migrações:
 # -> python manage.py makemigrations
+"""
+Migrations for 'contact':
+  contact\migrations\0003_category_contact_category.py
+    - Create model Category
+    - Add field category to contact
+"""
+# -> python manage.py migrate
+"""
+Operations to perform:
+  Apply all migrations: admin, auth, contact, contenttypes, sessions
+Running migrations:
+  Applying contact.0003_category_contact_category... OK
+"""
+
+# Agora registre a Category em contact/admin.py
+"""
+@admin.register(models.Category)
+class CategoryAdmin(admin.ModelAdmin):
+    list_display = 'name',
+    ordering = '-id',
+"""
+
+# Agora na área adimin foi criada a categoria e pode adicionar contatos a ela.
 
 
+# ------------------------------------------------------------------------------
 
 
+# Corrigindo o nome errado 'Categorys'
+
+# No Django - model meta options - uam classe dentro de outra classe
+"""
+https://docs.djangoproject.com/en/4.2/ref/models/fields/
+
+Cria uma classe dentro do model chamada Meta
+- verbose_name - versão humana de leitura para o model
+- verbose_name_plural
+# Sempre que o Django solicitar o model ele vai usar o verbose_name da classe meta
+
+O Django criou Contacts corretamente e Categorys ele errou
+
+# Configurando a classe meta: configura metadados dos dados
+class Category(models.Model):
+    class Meta:
+        verbose_name = 'Category'
+        verbose_name_plural = 'Categories'
+
+    name = models.CharField(max_length=50)
+    
+    def __str__(self) -> str:
+        return self.name
+"""
