@@ -784,6 +784,153 @@ no celular vai poder arrastar a barra para os lados
 # -----------------------------------------------------------------------------
 
 
-# 
+# 466 - Manipulando QuerysSets Django (filter, order_by e slice)
+
+
+# no django admin tem a opção (show) para exibir um contato ou não. Se desmarcar 
+# o contato nã oserá exibo. É preciso corrigir isso com o filter
+
+# no package views/contact_views.py: 
+"""
+def index(request):
+    contacts = Contact.objects.filter(show=True).order_by('-id')[0:10]
+"""
+# selecione todos os contatos onde show=True e ordene por -id decrescente
+# vamos usar paginação - mas se tiver ruim ter que rolar a pagina para baixo ou 
+# p cima use fatiamento. [0:10]
+
+# se quiser ver as querys que estão sendo feita adicione o print abaixo.
+# print(contacts.query)
+
+
+# -------------------------------------------------------------------------------
+
+
+# 467 - Criando template - view e a url par aexibir contato único.
+
+
+# ao clicar no id do contato ir para p outra url - rederizar outro template p 
+# mostrar um único contato
+# vai precisar de uma url, um template e uma view para separar pois o index atual 
+# é diferente do que quer exibir com apenas um contato.
+
+# Primeira coisa: ir no contact/templates e criar um novo template contact.html
+# cria-se primeiro o templete posi a view renderiza o template
+# depois cria a view porque a URL depende da view
+
+# Vai no contact.html o global/base.html
+# {% extends 'global/base.html' %}
+
+# Colocando as classes no block:
+"""
+{% block content %}
+  <div class="single-contact">
+    <h1 class="single-contact-name">
+      {{ contact.first_name }} {{ contact.last_name}}
+    </h1>    
+  </div>  
+{% endblock content %}
+"""
+
+# Agora na contact_views.py crie a view contact no singular:
+# na busca será .get() que retorna um único valor
+# o get vai receber uma pk. Será recebido na url - a url vai enviar um contact_id
+"""
+def contact(request, contact_id):
+    single_contact = Contact.objects.get(pk=contact_id)
+
+    context = {
+        'contact': single_contact,
+    }
+    return render(
+        request,
+        'contact/contact.html',
+        context
+    )
+"""
+
+# Na URLS vai criar uma nova urls
+# a url se contact, a view se chama contact - nomes iguais deixa consistente
+# recendo um parâmetro dinâmico. <int:contact_id> esse nome está tbm na views
+# path('<int:contact_id>/', views.index, name='contact'), não esqueça / na url
+"""
+urlpatterns = [
+    path('<int:contact_id>', views.index, name='contact'), # type:ignore
+    path('', views.index, name='index'),  # type:ignore
+]
+"""
+# As urls foram invertidas - mesmo com a recomendação de deixar as mais específicas
+# para o final p não correr risco de dar mach com algo errado.
+
+# Agora coloque os campos a serem exibidos na urls para o contact único:
+"""
+<p><b>ID: </b> {{ contact.id }}</p>
+    <p><b>E-mail: </b> {{ contact.email }}</p>
+    <p><b>Phone: </b> {{ contact.phone }}</p>
+    <p><b>Created Date: </b> {{ contact.created_date }}</p>
+    <p><b>Description: </b> {{ contact.description }}</p>
+    <p><b>Category: </b> {{ contact.category }}</p>
+"""
+
+# Colocar links:
+# ao clicar nos IDs da página de contatos será direcionado p/ o contato
+# contact/contact mais parâmetro <int:contact_id>
+# no index.html:
+# <a class="table-link" href="{% url 'contact:contact' contact.id %}">
+
+# o get() da view se ele não encontrar um valor ou encontrar mais de um valor 
+# ele vai lançar um erro. Ele precisa encontrar um valor.
+# A maneira mais simples de resolver isso é substituir o get por filter() usando 
+# um last() ou first() valor
+# veja abaixo a mudança de get para filter: 
+"""
+def contact(request, contact_id):
+    single_contact = Contact.objects.filter(pk=contact_id).first()
+"""
+
+# mas agora cai em outro problema: 
+# ele não da erro mas retorna a query vazia sem valores. 
+# precisa importar e fazer um if na função
+# from django.http import Http404
+# if single_contact is None:
+#   raise Http404()
+
+# isso é tão comum de fazer que o Django tem um atalho:
+# acrescente no import o get_list_or_404
+# from django.shortcuts import get_list_or_404, render
+
+"""
+def contact(request, contact_id):
+    # single_contact = Contact.objects.filter(pk=contact_id).first()    <-anterior
+    single_contact = get_object_or_404(Contact, pk=contact_id, show=True)
+""" 
+# Pode passar o contact que é o model e passar os filtros para dentro da função
+# single_contact = get_object_or_404(Contact.filter(pk=contact_id, show=True))
+
+# passar o manage somente
+# single_contact = get_object_or_404(Contact.objects, pk=contact_id, show=True)
+
+# passar somente o model
+# single_contact = get_object_or_404(Contact, pk=contact_id, show=True)
+
+# É importante saber pois em alguns momentos precisa manipular a consulta para 
+# fazer algo que a get_objetct_or_404 não faz 
+# mas nesse momento não precisamos então não importa muito.
+
+# tenha cuidado pois o mesmo  filtor que usa para oculatr coisas como o show
+# desmarcado, tem que usar quando pfr buscar um contato único
+
+
+# -----------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
 
 
