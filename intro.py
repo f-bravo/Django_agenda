@@ -27,13 +27,13 @@ https://djangowaves.com/tips-tricks/gitignore-for-a-django-project/
 Cole os comandos dentro da pasta .gitignore
 """
 
-# Baixe o GIT - aplique as opção default
-
 """
+# Iniciando o GIT
+# -> git init
 OBS: usar o mesmo nome e email do GITHUB
 # Criando nome de usuário:
 -> git config --global user.name 'nome'
-# Configurando email - outlook.com
+# Configurando email:
 -> git config --global user.email 'email@email.com'
 # Olhando as configurações do GIT:
 -> git config --global
@@ -659,12 +659,50 @@ estará disponível apenas no local que estiver nesse caso só no seu computador
 Por exemplo se sobrescrever qualquer configuração do settings.py já vai funcionar.
 
 # É uma tática para ter settings baseada no local que estiver seja no servidor ou local
-
+# é uam tática para contornar o problema de settings diferentes p cada ambiente
 """
 # Colocando o caminho do local_settings no gitignore para n ser trackeado
 # lá no servidor esse arquivo tem que ser criado manualmente
 
 
+# --------------------------------------------------------------------
+
+
+# 462 - Organizando view.py num packeage sem quebrar código
+
+"""
+# O view é um módulo padrão sugerido pelo Django para organização.
+E para não sair desse padrão módulos Python da para "enganar" criando um pacote 
+Python de mesmo nome para utilizar como se fosse um módulo utilizando o arquivo
+__init__.py do package. Oinit é executado quando improta o package.
+Crie um package chamada views no APP
+Crie um arquivo chamdo __init__.py
+O __init__ além de indicar que é um módulo python, ele indica quando o package for
+importado ele é a primeira coisa a ser executada.
+Para organizar será criado packages dentro da pasta views.
+Se qualquer arquivo ficar muito grande pode fazer essa tática para separar eles.
+Você precisa simular que o package viewa é o arquivo views.py padrão do Django
+
+# Copie o código que está no arquivo views.py, cole no novo arquivo criado criado
+contact_views.py e exclua o views.py do Django
+OBS: normalmente não é recomendado excluir algo sem que já esteja funcionando mas
+nesse caso não tem alternativa pois não da para ter um package e um arquivo de fora 
+com o mesmo nome.
+# isso vai gerar um problema pois em urls.py o import precisa ser mudado.
+Como o __init__.py é a priemira coisa a ser executada, os imports vão paracer que
+estão vidno direto do package views
+Então no __init__.py: faça o import do arquivo contact_views.py
+from . contact_views import *
+"""
+# Essa a maneira de "enganar" o django.
+# É como se o package views fosse o módulo views.py só porque no __init__ é importado
+# tudo de dentro que será criado apra ficar mais organizado
+
+# Tenha atenção agora pois toda vez que criar um novo arquivo no package views precisa
+# fazer as importações no __init__.py. Se esquecer de fazer isso os arquivos criados
+# para views não serão importados
+# Outra obs é que o flake8 fica dando erro dizendo que não está utilizando.
+# Como não terá nenhuma lógica coloque no arquivo __init__.py: # flake8: noqa
 
 
 
