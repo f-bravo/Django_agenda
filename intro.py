@@ -705,11 +705,85 @@ from . contact_views import *
 # Como não terá nenhuma lógica coloque no arquivo __init__.py: # flake8: noqa
 
 
+# --------------------------------------------------------------------------------
 
 
+# 463 - enviando o CSS
 
 
+# --------------------------------------------------------------------------------
 
 
+# 464 - injetando contatos dentro do contexto do template index.html
+
+
+"""
+Na página inicial a gente quer exibir os contatos e para isso precisa injetar os
+contatos dentro da view index que está no package views/contact_views.py
+
+Mas antes precisa organizar o BASE pra que ele bata com o CSS.
+No CSS na classe .contet{} é a parte onde estão os contatos, o 'miolo' do site. É a 
+parte principal da página, a (main).
+
+No base templates/global/base.html precisa colocar o .content do CSS. 
+Pode fazer de duas formas:
+1 - criando um block de content
+    {% block content %}{% endblock content %}
+Com isso faria todo o body dentro de template/contact/index.html
+
+2 - criar o content no base fora do bloco e no template/contact/index.html coloca o 
+conteúdo do main.
+# Coloque a TAG main com a class="content" no base_templates/global/base.html para
+que exista em todas as páginas que extender o base.
+
+Para injetar os contatos no templates/contact/index.html é utilizar na contact_view.py
+o models para buscar os dados do contatos.
+"""
+# Em contact_views.py:
+"""
+from django.shortcuts import render
+from contact.models import Contact
+
+def index(request):
+    contacts = Contact.objects.all()
+    context = {
+        'contacts': contacts,
+    }
+    return render(
+        request,
+        'contact/index.html',
+        context
+    )"""
+
+
+# ---------------------------------------------------------------------------------
+
+
+# 465 - Criando tabela que exibe os contatos no index.html
+
+
+# ---------------------------------------------------------------------------------
+
+
+"""
+Por ser uma tabela ela não pode ser quebrada em outra linha. A tabela só encolhe e
+expande.
+Então foi criada uma  div no CSS chamada e .responsive-table{}
+Essa classe não permite que a tabela passe p fora do conteúdo da página
+É uma tática para fazer uma tabela rasponsiva.
+no celular vai poder arrastar a barra para os lados
+"""
+# O código está no index.html 
+# tabela: <table>
+# título: <caption
+# Cabeçalho da tabela: <thead>
+# Corpo da tabela: <tbody> com FOR para criar as linhas dos contatos com cada coluna
+# preenchida com contact.nome_da_coluna
+
+
+# -----------------------------------------------------------------------------
+
+
+# 
 
 
