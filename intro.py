@@ -977,8 +977,16 @@ em def contact crei a variável contact_name:
     site_title = f'{single_contact.first_name} {single_contact.last_name}'
 e que tem o nome para o contato pode passar para o site_title no context da função
   'site_title': contact_name
-
-
 """
 
+# Agora a página fica com o título + o nome do contato ao lado 
 
+
+# ---------------------------------------------------------------------------------
+
+
+
+
+
+
+# teste
