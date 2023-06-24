@@ -924,13 +924,61 @@ def contact(request, contact_id):
 # -----------------------------------------------------------------------------
 
 
+# 468 - criando cabeçalho principal do site
+
+"""
+Classes do CSS - Header, header-deading, header-link, header-link:hover, menu, etc.
+
+Vamos começar fazendo no base_templates/base.html e deposi tirar no partial
+"""
+
+# toda vez que clicar na Agenda do cabeçalho tem que ir para a home do site
+# contact:index
+# <a href="{% url 'contact:index' %}" class="header-link">
+
+# <form action="" method="get"> 
+# Todo formulário do tipo get vai atrelar o Search pesquisado lá na url
 
 
+# ---------------------------------------------------------------------------------
 
 
+# 469 - Criando arquivos parciais para usar com include nos templates
 
 
+# Separando em parciais - separando a header.
+# Tenha critério quando separa pois tem queda de performance e também fica confuso
+
+# crie uma pasta partial no base_tempaltes/global/partial e crei o _header.html
+# quando é um partial é costume colcoar um undeline na fretne do nome do arquivo
+
+# onde estava o header no base.html coloque o include com o caminho do _header.html
+#  {% include 'global/partials/_header.html' %}
+
+# Lembrando: fazer o partials é bom para quando repete muito código html.
+# Corte o código, coloque num partial e faça o include onde precisar repetir
+
+# outra coisa boa de tirar é a head - depednedo do site fica muito grande e bagunçado
+# - para não bagunçar o base inteiro, vou tirar o que está entre a TAG <head> e
+# colocar no partials _head.html
+"""
+Isso gera un  transtorno pois onde está carregando o static tem que utilizar o load static
+Inclua o {% load static %} no arquivo _head.html e também o caminho:
+#  {% include 'global/partials/_head.html' %}
+
+# adicione no contexto do título para mostrar que é o título do site
+<title>{{ site_title }}Agenda</title>
+# vá no package views/contact_views.py e em context adicione na def index(request):
+o context {'site_title': 'Contatos - ' }
+
+# na outra views coloqcar o nome do contato inteiro fica interessante]
+
+em def contact crei a variável contact_name:
+    site_title = f'{single_contact.first_name} {single_contact.last_name}'
+e que tem o nome para o contato pode passar para o site_title no context da função
+  'site_title': contact_name
 
 
+"""
 
 
