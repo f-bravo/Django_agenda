@@ -985,8 +985,114 @@ e que tem o nome para o contato pode passar para o site_title no context da fun�
 # ---------------------------------------------------------------------------------
 
 
+# 470 - Filtrando valores com Q e OR para o campo de pesquisa
+
+
+# melhorando a busca do search
+# vamso renderizar a mesma coisa, vai usar o mesmo template...
+# ainda sim é melhor trabalhar com uma nova views para nã odeixar ela com muitos if
+# Caso necessário pode até criar um template
+# Crie uma nova view em views/contact_views.py
+
+# precisa ter uma url p/ atrelar no <form action="{% url 'contact:search' %}" method="GET">
+# caminho criado na contact/urls.py
+# path('<search/', views.search, name='search'), # type:ignore
+
+# Agora está correto a ulr com o search/ e o parâmetro q=chave e o valor que é o teste
+# http://127.0.0.1:8000/%3Csearch/?q=teste
+# Essa chave é o name do form
+
+# Na views:
+# search_value = request.GET.get('q', '').strip() 
+# utilize o método get passando a chave e não tiver nada a string vazia para ndar erro 
+# quando não vier nada. O strip() remove espaço do começo e do fim.
+# O strip limpa limpa um pouco a consulta
+
+# Não quero que o usuáio envie um monte de valores vazios pois o servidor aceita 
+# Caso o usuário digite um valor vazio ou não mande o (q) vou redirecioanr para o index
+# para tirar o usuário da url search odne tava tentando buscar algo que não foi enviado
+# para isso use um atalho nos imperts chamado redirect
+# acrescente o IF abaixo p checar se o valor foi enviado. Se não foi redireciona p home
+# if search_value == '':
+#   return redirect('contact:index')
+# Se o usuário apenas der enter volta direto para a home
+
+# Para checar se o campo contém o trech oque a pessoa ta buscando
+# https://docs.djangoproject.com/en/4.2/ref/models/querysets/#field-lookups
+
+# Para utilizar filtros lookups:
+# Foi acrescentado outro filtro.
+# Pegue o nome que foi escolhido e coloque na frente no campo que está buscando.
+# .filter(first_name__icontains=search_value)\
+# agora chega o trecho do que estiver sendo buscado.
+# A letra (i) de icontains é para não diferenciar maiúsculo de minúsculo 
+
+# Isso deixou fora do offset [10:20], slice não estava permintindo que retornasse os 
+# nomes ao digitar na pesquisa. Estava retornando vazio.
+
+# Agora fazendo a busca permitir encotrar por last_name.
+# não da para acrescentar no filtro usandoa virgula(,) last_name. 
+# Ao separar por vírgula a busca fica AND e isso faz com que o mesmo nome tenha que
+# está no fist e last name.
+# para isso precisa fazer um import.
+# from django.db.models import Q
+
+# O Q permite mudara consulta como ela é feita no Django.
+# Com esse (Q) pode envolver um trecho da pesquisa e isso separa o first e last name
+# pois ele permite usar um pipe | para fazer o OU na busca. Mas precisa retirar a vírgula
+# .filter(
+#     Q(first_name__icontains=search_value) |
+#     Q(last_name__icontains=search_value)
+# Usando um print depois do filtro para ver a cunsulta:
+# veja o contact_fisrt OR contact_last na query.
+"""
+WHERE ("contact_contact"."show" AND ("contact_contact"."first_name" LIKE %Moura% ESCAPE 
+'\' OR "contact_contact"."last_name" LIKE %Moura% ESCAPE '\')) ORDER BY 
+"contact_contact"."id" DESC
+"""
+# Permitindo a busca filtrar além de fist e last name phone e email.
+"""
+.filter(show=True)\
+    .filter(
+        Q(first_name__icontains=search_value) |
+        Q(last_name__icontains=search_value) |
+        Q(phone__icontains=search_value) |
+        Q(email__icontains=search_value)
+"""
+# A pesquisa tem suas limitações. Ele vai tentar da um match com fisrt_name, last,
+# phone e email.
+# Por exemplo a busca não permite nada muito complexo. Ele retorna vazio.
+# a busca firará nesse nível Existem outras buscas para fazer com Django mas n será
+# nesse projeto.
+# O search ficou dessas forma:
+"""
+def search(request):
+    search_value = request.GET.get('q', '').strip()
+
+    if search_value == '':
+        return redirect('contact:index')
+
+    contacts = Contact.objects \
+        .filter(show=True)\
+        .filter(
+            Q(first_name__icontains=search_value) |
+            Q(last_name__icontains=search_value) |
+            Q(phone__icontains=search_value) |
+            Q(email__icontains=search_value)
+        )\
+        .order_by('-id')
+
+    context = {
+        'contacts': contacts,
+        'site_title': 'Search - '
+    }
+
+    return render(
+        request,
+        'contact/index.html',
+        context
+    )
+"""
 
 
 
-
-# teste
