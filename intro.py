@@ -1095,4 +1095,211 @@ def search(request):
 """
 
 
+# -------------------------------------------------------------------------
+
+
+# 471 - Usando a request no template para pegar o valor de GET
+
+
+# o formulário está apagondo o valor e não está mantendo.
+# existe várias maneiras de manter o valor.
+# será usado o próprio valro q esta´sendo tratado - serach_value.
+# Pega esse valor, manda de volta no context e pegar o valor dentro do form
+# basta colocar no base_templates/_header.html na class form coloque:
+# value="{{ search_value }}"
+
+# outra maneira é pegar o request pois temos acesso a ele em _header.html
+# algumas funções pode chamar sem os parênteses e uma delas é o strip()
+# por ela não receber nenhum argumento é fácil de chamar ela lá:
+#  value="{{ request.GET.q.strip }}"
+
+# evite jogar muita lógica p dentro do template. Mantenha a lógica na views
+
+
+# Quando fizer a paginação - será mantido o valor da busca quando o usuário 
+# estiver navegando entre as páginas.
+
+# outra coisa é se não estiver exibindo contatos, a tabela vazia é exibida.
+# No templates/contact/index.html: 
+# dentro do block e antes da divi faça um IF
+# {% if contacts %} 
+# o ELSE depois da div coloque:
+"""
+<div class="single-contact">
+  <h1 class="single-contact-name">
+    Nenhum contato encontrado
+</h1>
+"""
+
+
+# -----------------------------------------------------------------------------
+
+
+# 472 - Usando a classe Paginator para paginação no Django
+
+
+# https://docs.djangoproject.com/en/4.2/topics/pagination/
+
+
+# Paginator é uma classe do Djando pronta com vários recusros p criar a paginação
+# está bascimente tudo pronto. A view, o template e a classe
+# se quiser criar uma paginação mais robusta tem muitos valores nessa classe
+"""
+O Contact sára substituido pelo pag_objetic 
+Na view foi substituido sendo assim, precisa substitui também no index.html
+no IF e no FOR troque contacts por page_obj
+"""
+# agora pegue toda a div do pagination e crei um partial 
+# base_templates/global/partials/_pagination.html e cole a div do paginator
+
+# uma alteração é: não exibir nada se não encontrar algo na agenda.
+# coloque um if acima da div criada em _pagination.html
+
+# No arquivo static do CSS já tem as classes criadas a partir do patination
+
+# Agora precisa incluir esse arquivo no base.html da pasta global
+#  Dentro da TAG <main>: {% include 'global/partials/_pagination.html' %}
+
+
+# Acrescentando o mesmo trecho dentro da Views search e mudando o nome de
+# contact para page_obj
+"""
+paginator = Paginator(contacts, 10)  
+    page_number = request.GET.get("page") # pega page do GET vai ta na url
+    page_obj = paginator.get_page(page_number)
+
+
+    context = {
+        'page_obj': page_obj,
+        'site_title': 'Search - ',
+        'search_value': search_value,
+"""
+
+# Ao fazer isso quando retorna uma pesquisa com duas páginas, ao ir para
+# a segunda página ele perde a url anterior ficando somente a index.
+# no arquivo _pagination.html acrescetne em tudos os links:
+# &q={{ page_obj.GET.q.strip }}
+
+# agora da para utilizar a paginação mesmo na busca.
+# não perde a cunsulta nem o request get
+
+# Paginação é meui chato de fazer - por isso será mantida ela a mais simples
+
+
+# ------------------------------------------------------------------------
+
+
+# 473 - Usando um padrão comum para URLs de CRUD
+
+
+# Organizando as urls para no futuro não ter problemas
+# Vai seguir um padrão utilizado por outros devs
+"""
+EXEMPLO:
+# Contact (CRUD)
+    path('contact/<int:contact_id>/detail/', views.contact, name='contact'), 
+    path('contact/create', views.contact, name='contact'), 
+    path('contact/<int:contact_id>/update', views.contact, name='contact'), 
+    path('contact/<int:contact_id>/delete', views.contact, name='contact'), 
+]"""
+# Esse é o padrão comum de seguir em APIs, sites Django porque está mapeando a url
+# Ao criar por exemplo as urls de user basta seguir o padrão. Tirar o contact e colocar user
+# Assim fica fácil de entender o que as urls fazem só de olhar
+
+
+# -----------------------------------------------------------------------------
+
+
+# 474 - Criando a URL, view e template para criar um contato (CREATE)
+
+
+# Ainda será criado o usuário. 
+# Usuário, colocar user no contato, precisa está logado, etc. Só mais p frente.
+
+# Crie um arquivo em templates/contact/create.html
+# na maioria das vezes não precisa criar um templates para cada coisa.
+"""
+{% extends 'global/base.html' %}
+{% block content %}
+  <h1> CREATE CONTACT </h1>
+{% endblock content %}
+"""
+
+# No packeage views crie um aquivo contact_forms.py para os formulários.
+# crie o import no __init__: from . contact_forms import *
+"""
+from django.core.paginator import Paginator
+from django.shortcuts import get_object_or_404, redirect, render
+from django.db.models import Q
+from contact.models import Contact
+
+def create(request):
+    context = {
+    }
+    return render(
+        request,
+        'contact/create.html',
+        context
+    )
+"""
+# na urls adicione o caminho:
+# path('contact/create/', views.create, name='create'),
+
+
+# -----------------------------------------------------------------------------
+
+
+# 475 - HTML e CSS do formulário create.html
+
+
+# No templates/create.html:
+"""
+{% extends 'global/base.html' %}
+{% block content %}
+<h1>CREATE CONTACT</h1>
+<div class="form-wrapper"> -> p/ deixar o formulário menor
+  <h2>Contact</h2>
+  <form 
+    action=""  -> será dinâmico e alterado depois
+    method="POST"  -> método post: usado p coisas sensíveis user/password e tbm p enviar img
+    enctype="multipart/form-data">  -> requerido em formulários quando envia arquivos
+  >  
+    <div class="form-content"> -> para agrupar coisas de mesma margem - uma separação visual
+      <div class="form-group">  -> cria o label e o input
+        <label for="id_first_name">LABEL</label>
+        <input type="text" name="first_name" maxlength="255" id="id_first_name">
+      </div>
+    </div>
+    <div class="form-content">
+      <div class="form-group">  -> p criar o botão - do tipo submit p enviar o formulário
+        <button class="btn" type="submit">Send</button>  
+      </div>
+    </div>
+  </form>
+</div>
+{% endblock content %}
+"""
+
+# O django permite que a gente crie formulários e trabalhe com campo dinamicamente
+# pois muita coisa desse html vão vir dinamicamente do form como o label, input, 
+# os erros o help text, a proteção do django CSRF - proteção de segurança do django
+
+
+# -----------------------------------------------------------------------------
+
+
+# 476 - csrf_token - proteção do Django contra ataques Cross Site Request Forgery
+
+
+# de uma pesquisa por fora nisso.
+
+# O django já vem por padrão em MIDDLEWARRE = [
+#  'django.middleware.csrf.CsrfViewMiddleware', ]
+
+# Vá em create.html no formulário, dentro da tag form e use a tag do csrf_token
+# lembrando que é só para formulários do tipo post
+# Essa tag gera um input do tipo hidden(escondido) com o código do Django que atualiza
+#  toda vez que acessa a página.
+# Isso garante que os dados que chegaram na view realmente são os dados vindo do formulário
+
 
