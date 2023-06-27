@@ -1101,9 +1101,9 @@ def search(request):
 # 471 - Usando a request no template para pegar o valor de GET
 
 
-# o formulário está apagondo o valor e não está mantendo.
+# o formulário está apagando o valor e não está mantendo.
 # existe várias maneiras de manter o valor.
-# será usado o próprio valro q esta´sendo tratado - serach_value.
+# será usado o próprio valor q está sendo tratado - search_value.
 # Pega esse valor, manda de volta no context e pegar o valor dentro do form
 # basta colocar no base_templates/_header.html na class form coloque:
 # value="{{ search_value }}"
@@ -1119,7 +1119,7 @@ def search(request):
 # Quando fizer a paginação - será mantido o valor da busca quando o usuário 
 # estiver navegando entre as páginas.
 
-# outra coisa é se não estiver exibindo contatos, a tabela vazia é exibida.
+# outra coisa, se não estiver exibindo contatos a tabela vazia é exibida.
 # No templates/contact/index.html: 
 # dentro do block e antes da divi faça um IF
 # {% if contacts %} 
@@ -1142,12 +1142,12 @@ def search(request):
 
 
 # Paginator é uma classe do Djando pronta com vários recusros p criar a paginação
-# está bascimente tudo pronto. A view, o template e a classe
+# basicamente está tudo pronto. A view, o template e a classe
 # se quiser criar uma paginação mais robusta tem muitos valores nessa classe
 """
-O Contact sára substituido pelo pag_objetic 
+O Contact sera substituido pelo pag_objetic 
 Na view foi substituido sendo assim, precisa substitui também no index.html
-no IF e no FOR troque contacts por page_obj
+no IF e no FOR - troque contacts por page_obj
 """
 # agora pegue toda a div do pagination e crei um partial 
 # base_templates/global/partials/_pagination.html e cole a div do paginator
@@ -1165,7 +1165,7 @@ no IF e no FOR troque contacts por page_obj
 # contact para page_obj
 """
 paginator = Paginator(contacts, 10)  
-    page_number = request.GET.get("page") # pega page do GET vai ta na url
+    page_number = request.GET.get("page")  # pega page do GET vai ta na url
     page_obj = paginator.get_page(page_number)
 
 
@@ -1177,13 +1177,13 @@ paginator = Paginator(contacts, 10)
 
 # Ao fazer isso quando retorna uma pesquisa com duas páginas, ao ir para
 # a segunda página ele perde a url anterior ficando somente a index.
-# no arquivo _pagination.html acrescetne em tudos os links:
+# no arquivo _pagination.html acrescente em todos os links:
 # &q={{ page_obj.GET.q.strip }}
 
 # agora da para utilizar a paginação mesmo na busca.
-# não perde a cunsulta nem o request get
+# não perde a consulta nem o request get
 
-# Paginação é meui chato de fazer - por isso será mantida ela a mais simples
+# Paginação é meuo chato de fazer - por isso será mantida a mais simples
 
 
 # ------------------------------------------------------------------------
@@ -1281,8 +1281,8 @@ def create(request):
 """
 
 # O django permite que a gente crie formulários e trabalhe com campo dinamicamente
-# pois muita coisa desse html vão vir dinamicamente do form como o label, input, 
-# os erros o help text, a proteção do django CSRF - proteção de segurança do django
+# pois muita coisa desse html virá dinamicamente do form como o label, input, 
+# os erros, o help text, a proteção do django CSRF - proteção de segurança do django
 
 
 # -----------------------------------------------------------------------------
@@ -1299,7 +1299,169 @@ def create(request):
 # Vá em create.html no formulário, dentro da tag form e use a tag do csrf_token
 # lembrando que é só para formulários do tipo post
 # Essa tag gera um input do tipo hidden(escondido) com o código do Django que atualiza
-#  toda vez que acessa a página.
+# toda vez que acessa a página.
 # Isso garante que os dados que chegaram na view realmente são os dados vindo do formulário
+# Ao inpsecionar a página veja o que ele faz abaixo:
+# <input type="hidden" name="csrfmiddlewaretoken" value="9DwThtxO7EqFYCMwTMcOezA7PBleQ2fatFPkNlJiR7faty09iR10WM7eqJl86vz1">
+# outra atualização:
+# <input type="hidden" name="csrfmiddlewaretoken" value="z1UlUzv66df4xsL0QmNlYRvJ9IeAkgQqT3dMqrHAQG4z2oZDfrCxG42QKQeuAJah">
+# sempre diferente.
+
+
+# -----------------------------------------------------------------------------
+
+
+# 477 - Usando request.method e request.POST para saber quando o formulário é postado
+
+
+# entendendo como o form funciona
+# Nos inputs - o id e name precisam ser únicos na página
+# O id é só para ter o identificador p o input - não é requerido
+# O name é requerido - através do name é que pega a chave lá no request 
+
+# Em create.html o form faz o método post p dentro da create.
+# duplicando a div como exemplo tem o first_name e last_name
+# acrescetando na views/contact_form.py - na função da p pegar o first e last name
+
+# Quando acessa a págian do formulário o mpetodo é o get
+# Se digitar e enviar o método é o post
+# Dentro da função da view existe duas possibilidades:
+# GET para ler ou POST para salvar, cria ou deletar algo.
+# então é bom não deixar o método POST passar despercebido. Faça um IF
+# if request.method == 'POST' ...
+# Se for POST fará algo e se for GET vai passar e apenas renderizar
+
+# É feito dessa mandeira quando trabalha com function base views
+# Se trabalhar com class base views tem um método específico a ser chamado
+# sem precisar fazer a lógica.
+
+
+# -----------------------------------------------------------------------------
+
+
+# 478 - Criando um formulário dinâmico com forms.ModelForm do Django P1
+
+
+# Com temos o model contact - o formulário será criado baseado nele.
+# Assim fica muito mais fácil de trabalhar.
+
+# criando o formulário:
+"""
+# from django import forms
+# Dentro de forms tem classes que pode usar para criar os formulários
+# Para criar o formulário cria a class
+# para criar o form do zero herdaria de (forms)
+# Mas como já temos um formulário vamos herdar de (forms.ModelForm)
+# É o formulário baseado no nosso modelo
+# Na class: 
+# precisa indicar qual é o model  que esse formulário é baseado e quais campos 
+# desse model quer no formulário
+# precisa criar uma meta class dentro para receber as configurações relacionada 
+# com o form
+# precisa indicar quais campos do model Contact quer que seja exibido no form
+"""
+# Como usar o form dentro do template:
+# precisa passar o formulário no contexto
+
+# da para criar o formulário usando tags do Django dentro do create.html
+# mas vamos criar nosso próprio formulário veja:
+"""
+em create.html faça um FOR
+  {% for field in form %}{% endfor %} -> recebe os campos de volta configurados no formulário
+Dentro da tag for ficará a div para pegar os campos dinamicamente.
+{% for field in form %}
+  <div class="form-group">
+    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+field.id_for_label - pega o id do for no label.
+field.label - pega o texto dos campos lá da view
+
+# Agora o input: não p recisa criar o input como estava antes.
+Só de chamar {{ field }} ele cria o input dinamicamente. Veja os campos até então 3:
+div class="form-group">
+        <label for="id_first_name">First name</label>
+          <input type="text" name="first_name" maxlength="50" required id="id_first_name">
+        </div>
+        <div class="form-group">
+          <label for="id_last_name">Last name</label>
+          <input type="text" name="last_name" maxlength="50" id="id_last_name">
+        </div>
+        <div class="form-group">
+          <label for="id_phone">Phone</label>
+          <input type="text" name="phone" maxlength="50" required id="id_phone">
+        </div>
+"""
+# No contact_forms.py na função da views create.
+# Quando enviar os dados, quer enviar eles para dentro do formulário precisa passar um atributo
+# Quando sabe que o request.method é POST pode passar tranquilamente o request.POST que
+# são os dados do formulário
+
+# form que recebeu o post ele continua preenchido.
+# Se entrar novamente na página o outro form limpa a página pois ele foi criado vazio.
+# Quando o méthodo é POST para no return. QUando o método é GET não entra no IF e renderiza
+# a parte final do código com o form limpo
+# Veja o código abaixo
+"""
+class ContactForm(forms.ModelForm):
+    class Meta:
+        model = Contact
+        fields = (
+            'first_name', 'last_name', 'phone',
+        )
+def create(request):
+    if request.method == 'POST':
+        context = {
+            'form': ContactForm(request.POST)
+        }
+        return render(
+            request,
+            'contact/create.html',
+            context
+        )
+    context = {
+        'form': ContactForm()
+    } 
+    return render(
+            request,
+            'contact/create.html',
+            context
+    ) """
+
+
+# --------------------------------------------------------------------------------------
+
+
+# 479 - Criando um formulário dinâmico com forms.ModelForm do Django P2
+
+
+# Colocando no formulário em algum moneto terá erros como nome inválido, senha,
+# qualquer coisa que vc queria informar para o usuário para ele corrigir
+# em create.html coloque um {{ field.errors }}
+# Quando algum campo do formulário estiver com erro vai exibir uma msg
+
+# Se existir erros de nonfilds - erros que não são dos campos:
+# Primeiro chega com IF e depois pega os erros dentro da div:
+"""
+ <div class="form-content">
+      {% for field in form %}
+        <div class="form-group">
+          <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+          {{ field }}
+          {{ field.errors}}
+        </div>
+      {% endfor %}
+  </div>"""
+
+
+# ---------------------------------------------------------------------------------------
+
+
+# 480 - Movendo o ContactForm para forms.py
+
+
+# É bem comum no Django que utilzie um arquivo no app contact chamdo de forms.py
+# Se ficar muito grande use a mesmoa tática da pasta views para separar
+
+
+# -----------------------------------------------------------------------------
 
 
