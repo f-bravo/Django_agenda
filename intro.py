@@ -1459,9 +1459,87 @@ def create(request):
 
 
 # É bem comum no Django que utilzie um arquivo no app contact chamdo de forms.py
-# Se ficar muito grande use a mesmoa tática da pasta views para separar
-
+# Se ficar muito grande use a mesma tática da pasta views para separar
+# For organizados os imports e retirado o formulário que ra p teste que estava na view.
 
 # -----------------------------------------------------------------------------
+
+
+# 481 - Configurando os campos e widgets do formulário
+
+
+# O django trabalha com widgets para campos de formulários
+
+# https://docs.djangoproject.com/en/4.2/ref/forms/widgets/
+
+# No models o campo first_name está assim:
+# first_name = models.CharField(max_length=50)
+# O widgets - CharField por padrão é um widgets de texto
+# Por exemplo se quiser mudar o que está por padrão do Django:
+# Se quiser configurar o passwold nesse mesmo lugar, vai em forms.py na classe meta
+# do form e acrescente o widgets = {'first_name': forms.PasswordInput()}
+
+# O widgets é o que esta´dentro do campo que va iser renderizado no html
+# Tem o campo de dentro do campo tem o campo que vai para o html
+
+# Dentro do widgets - tem um dicionário attrs = {} que é referente aos atributos
+# do widgets. 
+# É comum mudar em atributos:
+# placeholder, classes p colocar no input
+"""
+class ContactForm(forms.ModelForm):
+    class Meta:
+        model = models.Contact
+        fields = (
+            'first_name', 'last_name', 'phone',
+        )
+        widgets = {
+            'first_name': forms.TextInput(
+                attrs={
+                    'placeholder': 'Escreva aqui',
+                }
+            )    
+        }"""
+# Com esse placeholder se o campo estiver vazio ele mostra a msg 'Escreva aqui'
+
+# outra forma de fazer isso seria acessar o __init_- da classe ContactForm
+# Cria o init na classe mas precisa chamar o __init__ de quem está herdando
+# Assim como no Python.
+# Tendo acesso ao __init_- da class pode pegar o self.fields
+# Isso retorna um dicionário que tem a chave como campo
+# Vamos fazer a mesma coisa feita com widgets no código acima:
+"""
+class ContactForm(forms.ModelForm):
+    def __ini__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields['first_name'].widget.attrs.update({
+            'placeholder': 'Veio do __init__',
+        })"""
+
+# Existe outra maneira mas que tem opções de modificar o campo inteiro.
+# Essa seria a melhor maneira caso queria colcoar algo diferente do que está no Models.py
+"""
+class ContactForm(forms.ModelForm):
+    first_name = forms.CharField(
+        widget=forms.TextInput(
+            attrs={
+                'placeholder': 'Outra maneira:',
+            }
+        ),
+        label='Primeiro Nome',
+        help_text='Texto de ajuda para o usuário',  # precisa renderizar no create.html
+    )"""
+# No create.html adicione o help_text:
+"""
+% if field.help_text %}
+  <p class="help-text"> {{ field.help_text }}</p>
+{% endif %}
+"""
+# Esse método sobrescreve se por acaso estiver usando verbose_name no Models
+
+
+
+
 
 
