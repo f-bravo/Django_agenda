@@ -1657,3 +1657,194 @@ if form.is_valid():
 if form.is_valid():
     form.save()
     return redirect('contact:create')"""
+
+# O user fica na mesma página mas limpa o formulário dele.
+# A ideia é redirecionar para uma página que o user possa aditar o contato
+# contact/id/update por exemplo. Será feito mais p frente.
+
+
+# -------------------------------------------------------------------------
+
+
+# 485 - Usando instance do ModelForm para atualizar dados de um contato
+
+
+# No base_static/base_templates/partial/_header.html
+# Coloque uma url no link:
+# <a href="{% url 'contact:create' %}" class="menu-link">
+
+# Agora como pegar a url do template mas dentro da view?
+# <form 
+#    action="{% url 'contact:create' %}
+
+# faça o import:
+# from django.urls import reverse
+# com isso consegue passar dados para dentro dessa função reverse para que 
+# retorne uma url do contato
+
+# Quando o user for enviar o formulário essa ulr tem que ir dinamicamente de
+# dentro da view
+# Serão duas views:
+# uma para criar e outra para atualizar o user
+
+# Como serão duas views diferentes precisa passar p dentro do template uma 
+# variável em create.html no form action
+# <form action="{{ form_action }}"
+
+# para saber o reverse do template create:
+# Cria a variável e passa a url: form_action = reverse('contact:create')
+
+# se o forumlário for válido form.is_valid() tem que redirecionar a página para outro local
+# e passe o parâmetro dinâmico do update.
+""" 
+if form.is_valid():
+            contact = form.save()
+            return redirect('contact:update', contact_id=contact.pk)"""
+
+# Criando a url para direcionar: contac:update com o parâmetro dinamico <contact_id>
+# path('contact/<int:contact_id>/update/', views.update, name='update'),
+
+# coloque o form_action nos dois context 
+"""
+context = {
+            'form': form,
+            'form_action': form_action }
+context = {
+        'form': ContactForm(),
+        'form_action': form_action, }"""
+
+# A views contact_forms.py ficou assim:
+""" 
+from django.shortcuts import render, redirect
+from contact.forms import ContactForm
+from django.urls import reverse
+
+def create(request):
+    form_action = reverse('contact:create')
+
+    if request.method == 'POST':
+        form = ContactForm(request.POST)
+        
+        context = {
+            'form': form,
+            'form_action': form_action, 
+            }
+        if form.is_valid():
+            contact = form.save()
+            return redirect('contact:update', contact_id=contact.pk
+            )
+        return render(
+            request,
+            'contact/create.html',
+            context)
+    context = {
+        'form': ContactForm(),
+        'form_action': form_action, 
+    } 
+    return render(
+            request,
+            'contact/create.html',
+            context)   """
+
+# Criando a nova view update para atualizar contatos - serão bem parecidas.
+# Criando em contac_forms.py - no mesmo arquivo
+
+# tem que receber dinamicamente o contact_id
+# Esse update vai atualizar um contato então precisa ter um contato.
+# Feito as modificações...
+
+# quando tudo tiver válido vai redirecionar para a view update
+
+# Quando tem algum erro no formulário o action dinâmico continua sendo create
+
+# Se o formulário é válido - a página tem que ser redirecionada para contact:update
+# passando o contact_id=contact.pk
+# AI cai na view update onde tenta buscar o contato p preencher o instance=contact
+# do formulário.
+
+# agora na página de criação do contato ao enviar o contato continua na
+# página mas agora não envia contatos iguais e sim atualiza o mesmo contato
+# mesmo que não faça nenhuma modificação e a url modica de create para update
+# Criação: http://127.0.0.1:8000/contact/create/
+# Update: http://127.0.0.1:8000/contact/1007/update/
+ 
+# A diferenteça do create para o update:
+# além de algumas lógicas é basicamente saber qual a instância instance=contact
+# Precisa existir uma instãnca de um contato qualquer p atualziar
+# E quando está criando não precisa da instância só precisa receber os dados do 
+# formulário.
+# Por isso é melhor criar duas views do que ficar fazendo IFs nas views.
+# As duas views ficaram assim:
+"""
+from django.shortcuts import get_object_or_404, render, redirect
+from contact.forms import ContactForm
+from django.urls import reverse
+from contact.models import Contact
+
+
+def create(request):
+    form_action = reverse('contact:create')
+
+    if request.method == 'POST':
+        form = ContactForm(request.POST)
+        
+        context = {
+            'form': form,
+            'form_action': form_action, 
+        }
+        if form.is_valid():
+            contact = form.save()
+            return redirect('contact:update', contact_id=contact.pk)
+
+        return render(
+            request,
+            'contact/create.html',
+            context
+        ) 
+    context = {
+        'form': ContactForm(),
+        'form_action': form_action, 
+    } 
+    return render(
+            request,
+            'contact/create.html',
+            context
+    )   
+
+def update(request, contact_id):
+    contact = get_object_or_404(Contact, pk=contact_id, show=True)
+    form_action = reverse('contact:update', args=(contact_id,))
+
+    if request.method == 'POST':
+        form = ContactForm(request.POST, instance=contact)
+        
+        context = {
+            'form': form,
+            'form_action': form_action, 
+        }
+        if form.is_valid():
+            contact = form.save()
+            return redirect('contact:update', contact_id=contact.pk)
+
+        return render(
+            request,
+            'contact/create.html',
+            context
+        )
+    context = {
+        'form': ContactForm(instance=contact),
+        'form_action': form_action, 
+    } 
+    return render(
+            request,
+            'contact/create.html',
+            context
+    ) 
+"""
+
+
+# -----------------------------------------------------------------------------
+
+
+
+
