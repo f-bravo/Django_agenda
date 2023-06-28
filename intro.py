@@ -1846,5 +1846,35 @@ def update(request, contact_id):
 # -----------------------------------------------------------------------------
 
 
+# 486 - Criando a view, url e template para "delete" (apagar contatos)
+
+
+# O botão delete ficará na página contado/id para que não seja fácil deletar o contato
+
+
+# Em templates/contact/contact.html criará uma div
+"""
+<div class="contact-link">
+    <a class="btn btn-link" href="{% url 'contact:update' contact.id%}">Update</a>
+</div>"""
+
+# todo link é uma requisição do tipo GET para o navegador.
+# Quando faz uma requisição do tipo GET está informando que quer ler.
+
+# O delete vai alterar algo na base de dados então ele tem que ser dentro de um form
+# O delete vai ser um botão
+# Sempre que for criar, editar e apagar algo na base de dados o método é o POST
+# Todo formulário do tipo post no dJngo precisa do {% csrf_token %}
+# Iniciando a criação da view delete:
+"""
+def delete(request, contact_id):
+    contact = get_object_or_404(
+        Contact, pk=contact_id, show=True)
+    confirmation = request.POST.get('confirmation', 'no') <-criando um input com name confirmation
+    if confirmation == 'yes':
+        contact.delete()
+        return redirect('contact:index')
+"""
+# Se o confimation for no - muda o texto do botao e cria um input com confirmation yes
 
 
