@@ -1323,10 +1323,10 @@ def create(request):
 # duplicando a div como exemplo tem o first_name e last_name
 # acrescetando na views/contact_form.py - na função da p pegar o first e last name
 
-# Quando acessa a págian do formulário o mpetodo é o get
+# Quando acessa a página do formulário o método é o get
 # Se digitar e enviar o método é o post
 # Dentro da função da view existe duas possibilidades:
-# GET para ler ou POST para salvar, cria ou deletar algo.
+# GET para ler ou POST para salvar, cria e deletar algo.
 # então é bom não deixar o método POST passar despercebido. Faça um IF
 # if request.method == 'POST' ...
 # Se for POST fará algo e se for GET vai passar e apenas renderizar
@@ -1342,7 +1342,7 @@ def create(request):
 # 478 - Criando um formulário dinâmico com forms.ModelForm do Django P1
 
 
-# Com temos o model contact - o formulário será criado baseado nele.
+# Como temos o model contact - o formulário será criado baseado nele.
 # Assim fica muito mais fácil de trabalhar.
 
 # criando o formulário:
@@ -1375,7 +1375,7 @@ Dentro da tag for ficará a div para pegar os campos dinamicamente.
 field.id_for_label - pega o id do for no label.
 field.label - pega o texto dos campos lá da view
 
-# Agora o input: não p recisa criar o input como estava antes.
+# Agora o input: não precisa criar o input como estava antes.
 Só de chamar {{ field }} ele cria o input dinamicamente. Veja os campos até então 3:
 div class="form-group">
         <label for="id_first_name">First name</label>
@@ -1397,7 +1397,7 @@ div class="form-group">
 
 # form que recebeu o post ele continua preenchido.
 # Se entrar novamente na página o outro form limpa a página pois ele foi criado vazio.
-# Quando o méthodo é POST para no return. QUando o método é GET não entra no IF e renderiza
+# Quando o método é POST para no return. QUando o método é GET não entra no IF e renderiza
 # a parte final do código com o form limpo
 # Veja o código abaixo
 """
@@ -1433,13 +1433,13 @@ def create(request):
 # 479 - Criando um formulário dinâmico com forms.ModelForm do Django P2
 
 
-# Colocando no formulário em algum moneto terá erros como nome inválido, senha,
+# Colocando no formulário em algum momento terá erros como nome inválido, senha,
 # qualquer coisa que vc queria informar para o usuário para ele corrigir
 # em create.html coloque um {{ field.errors }}
 # Quando algum campo do formulário estiver com erro vai exibir uma msg
 
 # Se existir erros de nonfilds - erros que não são dos campos:
-# Primeiro chega com IF e depois pega os erros dentro da div:
+# Primeiro checa com IF e depois pega os erros dentro da div:
 """
  <div class="form-content">
       {% for field in form %}
@@ -1458,9 +1458,9 @@ def create(request):
 # 480 - Movendo o ContactForm para forms.py
 
 
-# É bem comum no Django que utilzie um arquivo no app contact chamdo de forms.py
+# É bem comum no Django que utilize um arquivo no app contact chamado de forms.py
 # Se ficar muito grande use a mesma tática da pasta views para separar
-# For organizados os imports e retirado o formulário que ra p teste que estava na view.
+# Foi organizados os imports e retirado o formulário que era p teste que estava na view.
 
 # -----------------------------------------------------------------------------
 
@@ -1479,8 +1479,8 @@ def create(request):
 # Se quiser configurar o passwold nesse mesmo lugar, vai em forms.py na classe meta
 # do form e acrescente o widgets = {'first_name': forms.PasswordInput()}
 
-# O widgets é o que esta´dentro do campo que va iser renderizado no html
-# Tem o campo de dentro do campo tem o campo que vai para o html
+# O widgets é o que está dentro do campo que vai ser renderizado no html
+# Tem o campo de dentro do campo que vai para o html
 
 # Dentro do widgets - tem um dicionário attrs = {} que é referente aos atributos
 # do widgets. 
@@ -1491,23 +1491,23 @@ class ContactForm(forms.ModelForm):
     class Meta:
         model = models.Contact
         fields = (
-            'first_name', 'last_name', 'phone',
+          'first_name', 'last_name', 'phone',
         )
         widgets = {
             'first_name': forms.TextInput(
                 attrs={
-                    'placeholder': 'Escreva aqui',
+                  'placeholder': 'Escreva aqui',
                 }
             )    
         }"""
 # Com esse placeholder se o campo estiver vazio ele mostra a msg 'Escreva aqui'
 
-# outra forma de fazer isso seria acessar o __init_- da classe ContactForm
+# outra forma de fazer isso seria acessar o __init__ da classe ContactForm
 # Cria o init na classe mas precisa chamar o __init__ de quem está herdando
 # Assim como no Python.
-# Tendo acesso ao __init_- da class pode pegar o self.fields
-# Isso retorna um dicionário que tem a chave como campo
-# Vamos fazer a mesma coisa feita com widgets no código acima:
+# Tendo acesso ao __init__ da class pode pegar o self.fields
+# Isso retorna um dicionário que tem a chave como os campos
+# Vamos fazer a mesma coisa feita com widgets no código acima usando o __init__:
 """
 class ContactForm(forms.ModelForm):
     def __ini__(self, *args, **kwargs):
@@ -1518,7 +1518,7 @@ class ContactForm(forms.ModelForm):
         })"""
 
 # Existe outra maneira mas que tem opções de modificar o campo inteiro.
-# Essa seria a melhor maneira caso queria colcoar algo diferente do que está no Models.py
+# Essa seria a melhor maneira caso queria colocar algo diferente do que está no Models.py
 """
 class ContactForm(forms.ModelForm):
     first_name = forms.CharField(
@@ -1537,6 +1537,42 @@ class ContactForm(forms.ModelForm):
 {% endif %}
 """
 # Esse método sobrescreve se por acaso estiver usando verbose_name no Models
+
+
+# -------------------------------------------------------------------------------------
+
+
+# 482 - Validando campos do formulário com clean, clean_field e ValidationError
+
+
+"""
+O usuário mandou algo que eu nãoquero enviar para a base de dados. 
+Como avisar o usuário isso?
+Existe várias maneiras - umas delas é usar o método clean
+O método clean tem acesso a todos os campos do formulário.
+Irá usar o método clean geralmente quando estiver validando um campo que depende 
+de outro campo, quando estiver validando algo que não está relacionado com o campo
+em si mas o formulário inteiro.
+O clean é chamado antes de salvar na base de dados. Ele garante que se adicionar um 
+erro ValidationError() ele n deixa salvar na base de dados. Ele apenas mostra os
+erros no campo.
+
+Mas tem outra maneira - é o clean com o nome do campo
+Exemplo: validar o first_name:
+Por está trabalhando no campo - valida um campo em específico
+Se precisa apensa do valor de um campo. Use essa maneira.
+# Usar o add_error é melhor posi ele pega tds os erros e exibe de uma vez.
+# Mas se levantar uam excessão pode ser que ele não pegue tods e sim apenas do campo específico
+def clean_first_name(self):
+    first_name = self.cleaned_data.get('first_name')
+      if first_name == 'ABC':
+        self.add_error(
+          raise ValidationError(
+            'Não digite ABC nesse campo',
+              code='invalid'
+          )
+        )      
+      return first_name"""
 
 
 
