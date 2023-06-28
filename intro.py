@@ -1564,18 +1564,96 @@ Se precisa apensa do valor de um campo. Use essa maneira.
 # Usar o add_error é melhor posi ele pega tds os erros e exibe de uma vez.
 # Mas se levantar uam excessão pode ser que ele não pegue tods e sim apenas do campo específico
 def clean_first_name(self):
-    first_name = self.cleaned_data.get('first_name')
-      if first_name == 'ABC':
-        self.add_error(
-          raise ValidationError(
-            'Não digite ABC nesse campo',
-              code='invalid'
-          )
-        )      
+      first_name = self.cleaned_data.get('first_name')
+        if first_name == 'ABC':
+            self.add_error(
+                'first_name',
+                ValidationError(
+                  'Não digite ABC nesse campo',
+                  code='invalid'
+                )
+            )      
       return first_name"""
+# se passou da validação quer dizer que está correto - return first_name: valor correto
+
+# Agora quando um campo depende de outreo campo. Por exemplo o password.
+# Depende do password e ca confirmação do password.
+# Exemplo usando o primeiro e último nome: Assim a msg será exibida nos dois campos
+"""
+def clean(self):
+        cleaned_data = self.cleaned_data
+        first_name = cleaned_data.get('first_name')
+        last_name = cleaned_data.get('last_name')
+
+        if first_name == last_name:
+            msg = ValidationError(
+                    'Primeiro nome não pode ser igual ao segundo',
+                    code='invalid'  
+            )
+            self.add_error('first_name', msg)
+            self.add_error('last_name', msg)
+
+        return super().clean()"""
+
+# Nos dois métodos todos os dados vem do cleaned_data 
 
 
+# ----------------------------------------------------------------------------------------
 
 
+# 483 - Adicionando mais campos no formulário de contato
 
 
+# Adicionando email, description e category por enquanto
+# O email é validado automaticamente pelo Djanago 
+# O description é uma text área
+"""
+class Meta:
+        model = models.Contact
+        fields = (
+            'first_name', 'last_name', 'phone',
+            'email', 'description', 'category'
+        )"""
+
+# Validação OK. 
+# ainda precisa usar o formulário p salvar na base de dados
+
+
+# -------------------------------------------------------------------------
+
+
+# 484 - Verificando form.is_valid, salvando com form.save e redirecionando a pag
+
+
+# Na views/contact_forms.py def create que está usando aquele form...
+# faremos alguams mudanças
+# sempre que utilizar o form do Djando precisa fazer um if form...
+# if form.is_valid():
+#     contact = form.save()
+#     contact.save()
+# quando o tem um formulário Django se chama o método form.isvalid() quer
+# dizer que não tem nenhum erro no formulário e pode salvar na base de dados
+# forms.save() - salva os dados na base
+""" 
+if form.is_valid():
+            contact = form.save(commit=False)
+            contact.show = False
+            form.save()"""
+# commit = False: não salva ainda pois ainda será feito mudanças como colocar
+# o contact.show = false
+
+# outra observação é: limpar os dados quando o user enviar os dados para não correr
+# o risco de que o user envie sem querer ou não várias vezes
+# Mas como  ainda não te uma view para editar os dados do contato vamso só atualizar a pag
+# O correto é:
+# Ao criar o contato, manda ele p outra view onde vai ser editando os dados do contato
+
+# no Django não tem um mmetodo que atualzia a página.
+# O que pode ser feito é uma requisição para a mesma página
+# Se o formulário for válido trave ele com um return para não exibir a mesma coisa
+# com o return render(request)
+# import o redirect
+""" 
+if form.is_valid():
+    form.save()
+    return redirect('contact:create')"""
