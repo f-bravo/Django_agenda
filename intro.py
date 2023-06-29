@@ -1980,6 +1980,59 @@ def create(request):
 
     if request.method == 'POST':
         form = ContactForm(request.POST, request.FILES)
+...
+
+def update(request, contact_id):
+    contact = get_object_or_404(Contact, pk=contact_id, show=True)
+    form_action = reverse('contact:update', args=(contact_id,))
+
+    if request.method == 'POST':
+        form = ContactForm(request.POST, request.FILES ,instance=contact)"""
+
+# Está tudo OK. SE quiser trocar o arquivo basta escolher outro e enviar.
+
+# Ao deletar o contato - se olhar no MEDIA o arquivo não será deletado
+# Por padrão não deleta. Os arquivos ficam no servidor.
+# Se quiser deletar a imagem tem que usar signaus
+
+
+# -----------------------------------------------------------------------------
+
+
+# 488 - Usando UserCreationForm para criar novos usuários no Django
+
+
+# Trabalhando no owner 
+# O owner é um usuário logado 
+# Precisamos permitir o user seja criado para que logar e usar.
+
+# Em contact/templates/forms.py - faça a importação:
+# from django.contrib.auth.forms import UserCreationForm
+# é um formulário que cria usuário - já está pronto.
+# se não quiser nada complexo só o imorte e a criação da classe serve
+
+# Para rederizar o form precisa de um template
+# O form do template/contact/create.html é super dinâmico e funciona com
+# qualquer form que colocar.
+# Com isso vamos duplicar o arquivo create.html e tirar algumas cosias q não serão usadas.
+# O template será register.html
+
+# Crie a view para renderizar em:
+# templates/views/user_forms.py
+# O arquivo foi criado pois não estamos usando o contact e sim com user_forms
+# não esqueça de importar tudo dele no __init__.py
 """
+from django.shortcuts import render
+
+def register(request):
+    return render(
+        request,
+        'contact/register.html',
+    )
+"""
+
+# Nas urls crie o user:
+
+
 
 
