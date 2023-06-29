@@ -2032,7 +2032,83 @@ def register(request):
 """
 
 # Nas urls crie o user:
+# user 
+# path('user/create/', views.register, name='register'),
+
+# agora na url abaixo a página para cria usuário está funcionando
+# http://127.0.0.1:8000/user/create/
+
+# Mas não tem o formulário - pr ecisa passar o formulário p dentro do context
+# veja as alterações no arquivo criado em:
+# templates/views/user_forms.py
+"""
+from django.shortcuts import render
+from contact.forms import RegisterForm
+
+def register(request):
+    form = RegisterForm
+
+    return render(
+        request,
+        'contact/register.html',
+        {
+            'form': form
+        } ) """
+# Se o formulário estiver em inglês vá no settings e modifique p True.
+# USE_I18N = True
+
+# para criar o usuário precisa fazer algumas modificações:
+# forçar o user preencher primeiro nome, último nome e email. 
+# Não deixar que endereços de email iguais possam ser registrados no user
+# usuário ativo, que não seja membro da equipe e nem tenha status superusuário
+
+# precisa só corrigir os nomes e o email o resto ta ok.
 
 
+#---------------------------------------------------------------------------------
+
+
+# 489 - Validando campos de first_name, last_name e email do Usuário
+
+
+# P fazer isso é exatamente igual a qualquer forms do Django assim
+# como o ContactForm
+# A partir do momento que usa a classe Meta na função, tem que passar tudo
+# na função.
+# faça o import do model padrão do Django:
+# from django.contrib.auth.models import User
+# model = user e precisa informar os fields
+"""
+class RegisterForm(UserCreationForm):
+    class Meta:
+        model = User
+        fields = (
+            'first_name', 'last_name', 'email',
+            'username', 'password1', 'password2', ) 
+"""
+# o django usa o username para logar os usuários e não o email.
+# Vamos usar o clean_email para não permitir email iguais.
+"""
+def clean_email(self):
+        email = self.cleaned_data.get(email):
+
+        if User.objects.filter(email=email).exists():
+            self.add_error(
+                'email', 
+                ValidationError('Esse email já existe', code='invalid'))
+        return email
+"""
+# Se o email existir gera um erro dizendo que já existe.
+
+# outro erro é que da para enviar o formulário sem primeiro nome, último nome e email.
+# Para isso crie essas regras simples abaixo:
+"""
+
+"""
+# Deposi que registra o user tem que redirecionar para uma página pra que seja
+# permitido que o user edite seus dados.
+
+
+# -----------------------------------------------------------------------------
 
 
