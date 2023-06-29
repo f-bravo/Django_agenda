@@ -1848,15 +1848,46 @@ def update(request, contact_id):
 
 # 486 - Criando a view, url e template para "delete" (apagar contatos)
 
+# CSS adicionado no base_static/global/css/style.css
+"""
+.contact-links {
+  margin-block: calc(var(--small-font-size) * 2);
+  display: flex;
+  align-items: center;
+  gap: 0 var(--spacing);
+}
+.btn-link {
+  font-size: var(--small-font-size);
+  text-decoration: none;
+  font-weight: bold;
+  padding: 1rem;
+  display: block;
+  line-height: var(--small-font-size);
+}
+.btn-delete {
+  background: tomato;
+}
+"""
 
 # O botão delete ficará na página contado/id para que não seja fácil deletar o contato
 
-
 # Em templates/contact/contact.html criará uma div
 """
-<div class="contact-link">
-    <a class="btn btn-link" href="{% url 'contact:update' contact.id%}">Update</a>
-</div>"""
+<div class="contact-links">
+      <a class="btn btn-link" href="{% url 'contact:update' contact.id %}">Update</a>
+
+      <form action="{% url 'contact:delete' contact.id %}" method="POST">
+        {% csrf_token %}
+
+        {% if confirmation == 'no' %}
+          <input type="hidden" name="confirmation" value="yes">
+          <button class="btn btn-link btn-delete" type="submit">Confirma?</button>
+        {% else %}
+          <button class="btn btn-link btn-delete" type="submit">Delete</button>
+        {% endif %}
+      </form>
+    </div>
+"""
 
 # todo link é uma requisição do tipo GET para o navegador.
 # Quando faz uma requisição do tipo GET está informando que quer ler.
@@ -1869,12 +1900,86 @@ def update(request, contact_id):
 """
 def delete(request, contact_id):
     contact = get_object_or_404(
-        Contact, pk=contact_id, show=True)
-    confirmation = request.POST.get('confirmation', 'no') <-criando um input com name confirmation
+        Contact, pk=contact_id, show=True
+    )
+    confirmation = request.POST.get('confirmation', 'no')  <-criando um input com name confirmation
+
     if confirmation == 'yes':
         contact.delete()
         return redirect('contact:index')
+
+    return render(
+        request,
+        'contact/contact.html',
+        {
+            'contact': contact,
+            'confirmation': confirmation,
+        }
+    )
 """
 # Se o confimation for no - muda o texto do botao e cria um input com confirmation yes
+
+
+# -----------------------------------------------------------------------------
+
+
+# 487 - Trabalhando com ImageField no template e nos forms
+
+
+# O contato inteiro está sendo pssado para contact.htm, pode mostrar a imagem dele nessa pag
+# Se existir imagem será exibida na página do contato. O if é para se não existir
+# a imagem não quebre a página que não tenha imagem.
+"""
+{% if contact.picture %}
+  <p>
+    <img src="{{ contact.picture.url }}" alt="{{ contact.first_name }} {{ contact.last_name }}">
+  </p>
+{% endif %} """
+
+
+# Na página de update precisa mexer no form
+"""
+ class Meta:
+        model = models.Contact
+        fields = (
+            'first_name', 'last_name', 'phone',
+            'email', 'description', 'category',
+            'picture') """
+
+# O django acrescenta um link no p/ imagem no update
+# A ideia é exibir a imagem e ter um botão para a pessoa enviar uma nova imagem
+
+# No campo picture será mudado o widget
+# Na contact/forms.py:
+"""
+class ContactForm(forms.ModelForm):
+    picture = forms.ImageField(
+        widget=forms.FileInput(
+            attrs={
+                'accept': 'image/*',
+            }
+        )
+    )
+"""
+# No templates/contact/create.html: para exibir a imagem
+# É preciso saber quando terá o campo chamado de picture e se tem uma url:
+# Faça um IF dentro do FOR 
+"""
+{% if field.name == 'picture' and field.value.url %}
+    <div class="form-group">
+      <img src=" {{ field.value.url }}" alt="">
+{% endif %} """
+
+# Agora ao enviar a imagem nada acontece
+# no contact/views/contactf_forms.py
+# todo lugar que estiver recebendo POST coloque o segundo parâmetro request.FILES
+# Mais precisamente na função create e update
+"""
+def create(request):
+    form_action = reverse('contact:create')
+
+    if request.method == 'POST':
+        form = ContactForm(request.POST, request.FILES)
+"""
 
 
