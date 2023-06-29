@@ -2112,3 +2112,143 @@ def clean_email(self):
 # -----------------------------------------------------------------------------
 
 
+# 490 - Usando django.contrib.messages para enviar mensagens
+
+
+# Sistema flash mensage
+# Envia a mensagem de qualquer lugar. A msg só deixa de existir quando ela
+# for exibida em algum template.
+# Tem info, error, warning, sucess
+# o primeiro parâmetro é request e o segundo o texto
+# Quando envia a mensagem precisa capturar ela em algum lugar
+
+# para ter mensagem em todas as páginas:
+# no base_tempaltes/global/partial/base.html:
+# faça um include para o novo arquivo partials
+# {% include 'global/partials/_messages.html' %}
+
+# Crie um arquivo em base_tempaltes/global/partials/_messages.html
+"""
+{% if messages %}
+  {% for message in messages %}
+      <div class="message {{ message.tags }}">
+        {{ message }}
+      </div> 
+  {% endfor %}
+{% endif %}
+"""
+# Agora todas as páginas podem receber messages
+
+# As classes do CSS já foram criadas.
+"""
+ .message {
+    max-width: 600px;
+    margin: var(--spacing) auto;
+    margin-top: calc(var(--spacing) * 2);
+    padding: var(--spacing);
+    text-align: center;
+    border-radius: var(--default-border-radius);
+    font-size: var(--smaller-font-size);
+  }
+  
+  .message.success {
+    background: rgba(0, 255, 0, 0.3);
+    border: 1px solid rgba(0, 255, 0, 90%);
+  }
+  
+  .message.error {
+    background: rgba(255, 0, 0, 0.3);
+    border: 1px solid rgba(255, 0, 0, 90%);
+  }
+  
+  .message.warning {
+    background: rgba(255, 255, 0, 0.3);
+    border: 1px solid rgba(255, 255, 0, 90%);
+  }
+
+  .message.info {
+    background: rgba(0, 0, 255, 0.3);
+    border: 1px solid rgba(0, 0, 255, 0.3);
+  }
+"""
+
+# Quando quer informar que algo aconteceu com sucesso:
+# importo o redirect - from django.shortcuts import render, redirect
+#  Coloque a message depois do form.is_valid(): form.save() - após o usuário salva:
+"""
+def register(request):
+    form = RegisterForm()
+
+    if request.method == 'POST':
+        form = RegisterForm(request.POST)
+
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Usuário registrado')  <-aqui
+            return redirect('contact:index') """ # redireciona para o index e mostra a msg
+
+
+# -----------------------------------------------------------------------------
+
+
+# 491 - Criando o sistema de login e logout + AuthenticationForm
+
+
+# Será retirado o form do tempaltes/contact/register.html o código para criar um partial
+# no register faça o include para o novo arquivo partials
+# {% include 'contact/partials/_user-form.html' %}
+# crie um partials na mesma pasta:
+# templates/contact/partials/_user-form.html
+# Cole o form retirado.
+
+# Cria um arquivo no mesmo lugar do register para o login
+# templates/contact/partials/login.html
+
+# Crie a view para o login:
+# em views/user_forms.py :
+# Faça a importação:
+# from django.contrib.auth.forms import AuthenticationForm
+# from django.contrib import message, auth <-esse
+
+# Para logar o user:
+"""
+def login_view(request):
+    form = AuthenticationForm(request)
+
+    if request.method == 'POST':
+        form = AuthenticationForm(request, data=request.POST)
+
+        if form.is_valid():
+            user = form.get_user()
+            auth.login(request, user)
+            print('user', user)
+        else:
+            messages.error(request, 'Login inválido')    
+
+    return render(
+        request,
+        'contact/login.html',
+        {
+            'form': form
+        }
+    )
+"""
+
+# Crie a url
+# path('user/login/', views.login_view, name='login'),
+
+# No template Login
+"""
+
+"""
+
+# Crie a url de logout
+# path('user/logout/', views.logout_view, name='logout'),
+
+
+# crie a view para logout
+"""
+def logout_view(request):
+    auth.logout(request)
+    return redirect('contact:login')
+"""
