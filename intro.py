@@ -2239,8 +2239,24 @@ def login_view(request):
 
 # No template Login
 """
+{% extends 'global/base.html' %}
 
+{% block content %}
+  <div class="form-wrapper">
+    <h2>Login </h2>
+    {% if user.is_authenticated %}  <-o usuário está logado?
+        <p>
+            Você está logado como {{ user.username }}.  <- se sim faça isso
+            clique <a href=" {% url 'contact:logout' %}">aqui</a>
+            para sair.
+        </p>
+    {% else %}
+        {% include 'contact/partials/_user-form.html' %}  <-não está logado? exibe o formulário
+    {% endif %}
+  </div>
+{% endblock content %}
 """
+
 
 # Crie a url de logout
 # path('user/logout/', views.logout_view, name='logout'),
@@ -2252,3 +2268,42 @@ def logout_view(request):
     auth.logout(request)
     return redirect('contact:login')
 """
+
+# Se o loguin for válido madará uma msg de sucesso e redirecionará a página
+# acrescentando um redirect 
+# Foi retirado o else pois com o return ele passou a ser irrelevante
+"""
+def login_view(request):
+    form = AuthenticationForm(request)
+
+    if request.method == 'POST':
+        form = AuthenticationForm(request, data=request.POST)
+
+        if form.is_valid():
+            user = form.get_user()
+            auth.login(request, user)
+            messages.success(request, 'Logado com sucesso')
+            return  redirect('contact:index')
+        messages.error(request, 'Login inválido')
+"""
+
+# Agora ao está logado é redirecionado para a página do index com a msg logado com sucesso
+
+# min14explik
+
+
+# -----------------------------------------------------------------------------
+
+
+# 492 - Criando um formulário para atualizar dados do usuário
+
+
+# todos os campos que tem no user/create terá no user/update
+
+# Criar novo formulário em contact/form.py
+
+
+
+# Crie a view em user_forms.py
+# from contact.forms import RegisterUpdateForm
+
