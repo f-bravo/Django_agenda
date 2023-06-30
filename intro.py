@@ -2406,4 +2406,31 @@ if form.is_valid():
 # -----------------------------------------------------------------------------
 
 
+# 497 - Ocultando links de update e delete de não owner dos contatos
 
+
+# Em template/contact/contact.html onde é exibido o contato...
+# Se o usuário não for dono do contato não exiba
+# Faça um IF 
+# {% if user == contact.owner %}
+#   <div class="contact-links">
+#   <a class="btn btn-link" href="{% url 'contact:update' contact.id %}">Update</a>
+# {% endif %}
+
+# Foi corrigido a opção de poder criar contato sem imagem.
+# No formulári ode contato em picture acrescente o requided=False
+""" 
+class ContactForm(forms.ModelForm):
+    picture = forms.ImageField(
+        widget=forms.FileInput(
+            attrs={
+                'accept': 'image/*',
+            }
+        ),
+        required=False  <- aqui
+    )
+
+"""
+
+# Fim
+# ----------------------------------------------------------------------
