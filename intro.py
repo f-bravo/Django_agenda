@@ -2301,9 +2301,109 @@ def login_view(request):
 # todos os campos que tem no user/create terá no user/update
 
 # Criar novo formulário em contact/form.py
+# class RegisterUpdateForm(forms.ModelForm):
+#   ...
 
-
+# Crie e url para user_update
+# path('user/update/', views.user_update, name='user_update'),
 
 # Crie a view em user_forms.py
 # from contact.forms import RegisterUpdateForm
+""" 
+def user_update(request):
+    form = RegisterUpdateForm(instance=request.user)
+
+    if request.method != 'POST':
+        return render(
+            request,
+            'contact/user_update.html',
+            {
+                'form': form
+            } )
+    form = RegisterUpdateForm(data=request.POST, instance=request.user)
+
+    if not form.is_valid():
+        return render(
+            request,
+            'contact/user_update.html',
+            {
+                'form': form
+            } )
+    form.save()
+    return redirect('contact:user_update')
+"""
+
+# Crie outro template para user_update
+# contact/templates/contact/user_update.html
+"""
+{% extends 'global/base.html' %}
+
+{% block content %}
+  <div class="form-wrapper">
+    <h2>Update User</h2>
+    {% include 'contact/partials/_user-form.html' %}
+  </div>
+{% endblock content %}
+"""
+
+
+# -----------------------------------------------------------------------
+
+
+# 494 - Usando user.is_authenticated para diferenciar usuários logados ou não
+
+
+# Usando o decorator login_required
+# Ao decorar a view com o loguirequire o usuári só poderá usar a view estando logado
+# Faça a importanção:
+# from django.contrib.auth.decorators import login_required
+
+# decore a função user_update e logout_view
+# @login_required(login_url='contact:login') <- se n estiver logado redirecione:'contact:login'
+# def user_update(request):
+
+# def logout_view(request):
+
+
+# O usuário não logado não pdoe acessar a página para criar contatos
+# Com o owner - só poderá alterar contatos que for criado por ele.
+
+
+# Faça o import do login_required no contact_forms.py
+# Coloque o decorator nas 3 views: create, update e delete.
+
+
+# ---------------------------------------------------------------------
+
+
+# 496 - Criando a relação entre contact e owner (request.user)
+
+# Quando o contato for salvo será atrelado ao user que está logado
+
+# em contact_forms.py na view create add um commit=False 
+
+# def create(request):
+# ...
+""" 
+if form.is_valid():
+    contact = form.save(commit=False)
+    contact.owner = request.user
+    contact.save()
+"""
+
+# Garantindo um usuárior não possa editar contatos de outra owner
+# no update e delete adicione o parâmetro owner=request.user
+# def update(request, contact_id):
+#   contact = get_object_or_404(Contact, pk=contact_id, show=True, owner=request.user)
+
+# agora não da p saber se o usuário existe pe não for o owner pois na consulta
+# vai levantar o erro 404 se n for o dono do usuário.
+
+# lembrando que os contatos criados com a biblioteca para popular o banco
+# não owner então não será possível edita-los.
+
+
+# -----------------------------------------------------------------------------
+
+
 
